@@ -55,5 +55,6 @@ panchansminingisland/protector.go
 panchansminingisland/rootkit.go
 panchansminingisland/spreader.go
 panchansminingisland/updater.go
+'''
 
 ![PANCHAN strings found in captured payload](../images/panchan-strings-sep29.png)

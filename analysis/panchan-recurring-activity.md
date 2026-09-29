@@ -1,34 +1,53 @@
-## Additional Panchan Activity
+# Recurring PANCHAN Activity
 
-After the original capture, the honeypot continued to see activity consistent with the same Panchan campaign.
+After initially capturing PANCHAN malware on September 17, 2026, the honeypot
+continued to observe SSH sessions with behavior matching the original attack.
 
-On September 25, 2026, another attacker successfully authenticated to the honeypot using:
+## Initial Capture
 
-Username: root
-Password: centos
-SSH Client: SSH-2.0-Go
-HASSH: 98ddc5604ef6a1006a2b49a58759fbe6
+The first PANCHAN sample was captured on September 17 and is analyzed separately
+in [panchan.md](panchan.md).
 
-The attacker opened an SFTP session, created a randomly named hidden directory, and began uploading another file named `sshd`.
+## Recurring Activity
 
-The captured file had the SHA-256:
+| Date | Source IP | Credential | HASSH | Uploaded File | SHA-256 |
+|------|-----------|------------|-------|---------------|---------|
+| Sep 17 | 146.59.99.179 | root/ubuntu | 98ddc560... | sshd | 94f2e4d8... |
+| Sep 22 | 101.47.134.74 | root/ubuntu | 98ddc560... | sshd | 94f2e4d8... |
+| Sep 25 | 36.163.118.108 | root/centos | 98ddc560... | sshd | c6f5414f... |
+| Sep 29 | 175.100.126.149 | root/ubuntu | 98ddc560... | sshd | 8e730cdd... |
 
-`c6f5414fe4b8dd00f54004db9c067e896e5e1d67acca7e88746ab6a782785c97`
+## September 29 Capture
 
-This was a different hash from the original Panchan sample. However, the new session used the same SSH client fingerprint and followed a very similar SFTP delivery pattern.
+On September 29, another SSH session authenticated using root/ubuntu and
+uploaded a file named sshd through SFTP.
 
-Static analysis of the new file also revealed the string:
+The captured file was a 64-bit x86-64 ELF with a size of 29,655,040 bytes.
+Static analysis found several strings directly associated with PANCHAN:
 
-`pan-chan's mining island hi!`
+- `pan-chan's mining island hi!`
+- `panchansminingisland`
+- `panchansminingisland/miner.go`
+- `panchansminingisland/p2p.go`
+- `panchansminingisland/rootkit.go`
+- `panchansminingisland/spreader.go`
+- `panchansminingisland/updater.go`
 
-The binary contained Go packages related to SSH, SFTP, networking, and system information, including:
+The file appeared incomplete because its ELF metadata referenced section headers
+beyond the end of the captured file.
 
-`golang.org/x/crypto/ssh`
+## Pattern
 
-`github.com/pkg/sftp`
+Across these sessions, several characteristics repeatedly appeared:
 
-These findings provided strong evidence that the new payload was also related to Panchan.
+- SSH client identified as `SSH-2.0-Go`
+- HASSH fingerprint `98ddc5604ef6a1006a2b49a58759fbe6`
+- Root account authentication
+- SFTP transfer of a file named `sshd`
+- PANCHAN-related payloads
+- Similar delivery behavior across multiple source IP addresses
 
-The second capture appeared to be incomplete. Cowrie captured approximately 5.3 MB before the SSH connection closed, while the ELF metadata referenced structures located beyond the end of the captured file. Because of this, I treated the sample as a partial capture rather than attempting to execute or repair it.
-
-This additional activity was useful because I was able to correlate separate attacks using the HASSH fingerprint, delivery method, filename, and static indicators inside the captured payload.
+The repeated behavior suggests the honeypot is encountering the same or closely
+related automated PANCHAN deployment activity over time. The matching behavior
+does not prove that the individual source IP addresses are controlled by the
+same operator.

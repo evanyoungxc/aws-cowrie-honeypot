@@ -1,53 +1,57 @@
 # Recurring PANCHAN Activity
 
-After initially capturing PANCHAN malware on September 17, 2026, the honeypot
-continued to observe SSH sessions with behavior matching the original attack.
+After first capturing PANCHAN malware on September 17, 2026, I continued to see similar activity on the honeypot from different source IP addresses.
 
-## Initial Capture
+The sessions shared several characteristics with the original attack, including the same SSH client fingerprint, root login attempts, SFTP transfers, and files uploaded under the name `sshd`.
 
-The first PANCHAN sample was captured on September 17 and is analyzed separately
-in [panchan.md](panchan.md).
+My original analysis of the malware can be found in [panchan.md](panchan.md).
 
 ## Recurring Activity
 
-| Date | Source IP | Credential | HASSH | Uploaded File | SHA-256 |
-|------|-----------|------------|-------|---------------|---------|
-| Sep 17 | 146.59.99.179 | root/ubuntu | 98ddc560... | sshd | 94f2e4d8... |
-| Sep 22 | 101.47.134.74 | root/ubuntu | 98ddc560... | sshd | 94f2e4d8... |
-| Sep 25 | 36.163.118.108 | root/centos | 98ddc560... | sshd | c6f5414f... |
-| Sep 29 | 175.100.126.149 | root/ubuntu | 98ddc560... | sshd | 8e730cdd... |
+| Date | Source IP | Credentials | HASSH | Uploaded File | SHA-256 |
+|---|---|---|---|---|---|
+| Sep 17 | 146.59.99.179 | root/ubuntu | `98ddc560...` | sshd | `94f2e4d8...` |
+| Sep 22 | 101.47.134.74 | root/ubuntu | `98ddc560...` | sshd | `94f2e4d8...` |
+| Sep 25 | 36.163.118.108 | root/centos | `98ddc560...` | sshd | `c6f5414f...` |
+| Sep 26 | 115.190.53.236 | root/debian | `98ddc560...` | sshd | `169e1952...` |
+| Sep 26 | 59.37.94.126 | root/ubuntu | `98ddc560...` | sshd | `37f75998...` |
+| Sep 26 | 175.6.146.164 | root/ubuntu | `98ddc560...` | sshd | `bcb1b19a...` |
+| Sep 29 | 175.100.126.149 | root/ubuntu | `98ddc560...` | sshd | `8e730cdd...` |
 
 ## September 29 Capture
 
-On September 29, another SSH session authenticated using root/ubuntu and
-uploaded a file named sshd through SFTP.
+On September 29, a connection from `175.100.126.149` successfully logged in using `root/ubuntu`.
 
-The captured file was a 64-bit x86-64 ELF with a size of 29,655,040 bytes.
-Static analysis found several strings directly associated with PANCHAN:
+The SSH client identified itself as:
 
-- `pan-chan's mining island hi!`
-- `panchansminingisland`
-- `panchansminingisland/miner.go`
-- `panchansminingisland/p2p.go`
-- `panchansminingisland/rootkit.go`
-- `panchansminingisland/spreader.go`
-- `panchansminingisland/updater.go`
+`SSH-2.0-Go`
 
-The file appeared incomplete because its ELF metadata referenced section headers
-beyond the end of the captured file.
+The session also had the HASSH fingerprint:
 
-## Pattern
+`98ddc5604ef6a1006a2b49a58759fbe6`
 
-Across these sessions, several characteristics repeatedly appeared:
+After authentication, an `sshd` file was transferred to the honeypot through SFTP. The session lasted about five minutes.
 
-- SSH client identified as `SSH-2.0-Go`
-- HASSH fingerprint `98ddc5604ef6a1006a2b49a58759fbe6`
-- Root account authentication
-- SFTP transfer of a file named `sshd`
-- PANCHAN-related payloads
-- Similar delivery behavior across multiple source IP addresses
+The captured file had the SHA-256:
 
-The repeated behavior suggests the honeypot is encountering the same or closely
-related automated PANCHAN deployment activity over time. The matching behavior
-does not prove that the individual source IP addresses are controlled by the
-same operator.
+`8e730cdde5708b2704ac0c67d78b36fd2fcf62d195a1c056f6ee87ca655d5187`
+
+## Static Analysis
+
+The captured file was a 64-bit x86-64 ELF executable and was 29,655,040 bytes.
+
+Running `strings` against the file revealed several references directly associated with PANCHAN:
+
+```text
+pan-chan's mining island hi!
+path    panchansminingisland
+mod     panchansminingisland    (devel)
+panchansminingisland/killer.go
+panchansminingisland/main.go
+panchansminingisland/miner.go
+panchansminingisland/p2p.go
+panchansminingisland/utils.go
+panchansminingisland/protector.go
+panchansminingisland/rootkit.go
+panchansminingisland/spreader.go
+panchansminingisland/updater.go

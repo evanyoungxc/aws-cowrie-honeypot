@@ -55,3 +55,6 @@ panchansminingisland/protector.go
 panchansminingisland/rootkit.go
 panchansminingisland/spreader.go
 panchansminingisland/updater.go
+
+<img width="1900" height="533" alt="image" src="https://github.com/user-attachments/assets/1a2fdd39-20da-4118-8b51-3e0492dfa7a1" />
+

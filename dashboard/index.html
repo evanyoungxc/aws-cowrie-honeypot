@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cowrie Honeypot Dashboard</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+}
+
+header {
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    padding: 22px 36px;
+}
+
+.header-row {
+    max-width: 1450px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 25px;
+}
+
+.subtitle {
+    color: #8b949e;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.live {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #3fb950;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    background: #3fb950;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #3fb950;
+}
+
+main {
+    max-width: 1450px;
+    margin: auto;
+    padding: 28px 36px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+}
+
+.card, .panel {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 9px;
+}
+
+.card {
+    padding: 18px;
+}
+
+.card-title {
+    color: #8b949e;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: .5px;
+}
+
+.number {
+    margin-top: 8px;
+    font-size: 27px;
+    font-weight: bold;
+}
+
+.section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.panel {
+    padding: 18px;
+    overflow-x: auto;
+}
+
+.panel h2 {
+    margin: 0 0 7px;
+    font-size: 17px;
+}
+
+.full {
+    margin-top: 18px;
+}
+
+.chart-subtitle {
+    color: #8b949e;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 22px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #8b949e;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.legend-line {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.legend-connections {
+    background: #58a6ff;
+}
+
+.legend-logins {
+    background: #3fb950;
+}
+
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 330px;
+}
+
+#activityChart {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.chart-tooltip {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    z-index: 10;
+    box-shadow: 0 4px 14px rgba(0,0,0,.35);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    color: #8b949e;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+th, td {
+    text-align: left;
+    padding: 9px 8px;
+    border-bottom: 1px solid #30363d;
+}
+
+td {
+    font-size: 13px;
+}
+
+tbody tr:hover {
+    background: #1c2128;
+}
+
+.code {
+    font-family: Consolas, monospace;
+    word-break: break-word;
+}
+
+.ip {
+    font-family: Consolas, monospace;
+}
+
+.updated {
+    color: #8b949e;
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+footer {
+    border-top: 1px solid #30363d;
+    color: #8b949e;
+    margin-top: 28px;
+    padding-top: 18px;
+    font-size: 12px;
+}
+
+@media(max-width: 1100px) {
+    .stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media(max-width: 800px) {
+    .section-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    header {
+        padding: 20px;
+    }
+
+    .chart-wrapper {
+        height: 280px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="header-row">
+    <div>
+        <h1>Cowrie Honeypot Dashboard</h1>
+        <div class="subtitle">
+            AWS-hosted SSH honeypot monitoring and attack telemetry
+        </div>
+    </div>
+
+    <div class="live">
+        <span class="dot"></span>
+        LIVE
+    </div>
+</div>
+</header>
+
+<main>
+
+<div class="stats">
+
+<div class="card">
+<div class="card-title">Connections</div>
+<div class="number" id="connections">---</div>
+</div>
+
+<div class="card">
+<div class="card-title">Unique IPs</div>
+<div class="number" id="uniqueIPs">---</div>
+</div>
+
+<div class="card">
+<div class="card-title">Successful Logins</div>
+<div class="number" id="success">---</div>
+</div>
+
+<div class="card">
+<div class="card-title">Failed Logins</div>
+<div class="number" id="failed">---</div>
+</div>
+
+<div class="card">
+<div class="card-title">Commands Captured</div>
+<div class="number" id="commands">---</div>
+</div>
+
+<div class="card">
+<div class="card-title">File Events</div>
+<div class="number" id="files">---</div>
+</div>
+
+</div>
+
+<div class="panel full">
+    <h2>Attack Activity</h2>
+
+    <div class="chart-subtitle">
+        Daily SSH connections and successful Cowrie authentications
+    </div>
+
+    <div class="chart-legend">
+        <div class="legend-item">
+            <span class="legend-line legend-connections"></span>
+            Connections
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-line legend-logins"></span>
+            Successful Logins
+        </div>
+    </div>
+
+    <div class="chart-wrapper">
+        <svg id="activityChart"></svg>
+        <div id="chartTooltip" class="chart-tooltip"></div>
+    </div>
+</div>
+
+<div class="section-grid">
+
+<div class="panel">
+<h2>Recent Connections</h2>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Source IP</th>
+</tr>
+</thead>
+<tbody id="recentConnections"></tbody>
+</table>
+</div>
+
+<div class="panel">
+<h2>Top Source IPs</h2>
+<table>
+<thead>
+<tr>
+<th>Source IP</th>
+<th>Connections</th>
+</tr>
+</thead>
+<tbody id="topIPs"></tbody>
+</table>
+</div>
+
+</div>
+
+<div class="section-grid">
+
+<div class="panel">
+<h2>Top Usernames</h2>
+<table>
+<thead>
+<tr>
+<th>Username</th>
+<th>Successful Logins</th>
+</tr>
+</thead>
+<tbody id="topUsers"></tbody>
+</table>
+</div>
+
+<div class="panel">
+<h2>Top HASSH Fingerprints</h2>
+<table>
+<thead>
+<tr>
+<th>Fingerprint</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="topHassh"></tbody>
+</table>
+</div>
+
+</div>
+
+<div class="panel full">
+<h2>Recent Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Source IP</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody id="recentCommands"></tbody>
+</table>
+</div>
+
+<div class="panel full">
+<h2>Top Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="topCommands"></tbody>
+</table>
+</div>
+
+<div class="updated" id="updated">
+Waiting for dashboard data...
+</div>
+
+<footer>
+Telemetry is generated from sanitized Cowrie logs. Raw logs, captured payloads,
+credentials, and administrative SSH access are not exposed through this dashboard.
+</footer>
+
+</main>
+
+<script>
+function escapeHTML(value) {
+    const element = document.createElement("div");
+    element.textContent = value ?? "";
+    return element.innerHTML;
+}
+
+function localTime(timestamp) {
+    if (!timestamp) return "—";
+    return new Date(timestamp).toLocaleString();
+}
+
+function svgElement(name, attributes = {}) {
+    const element = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        name
+    );
+
+    Object.entries(attributes).forEach(([key, value]) => {
+        element.setAttribute(key, value);
+    });
+
+    return element;
+}
+
+function renderActivityChart(data) {
+    const svg = document.getElementById("activityChart");
+    const tooltip = document.getElementById("chartTooltip");
+
+    if (!svg || !data || data.length === 0) return;
+
+    svg.innerHTML = "";
+
+    const width = svg.clientWidth || 1000;
+    const height = svg.clientHeight || 330;
+
+    const margin = {
+        top: 15,
+        right: 25,
+        bottom: 42,
+        left: 48
+    };
+
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+
+    const maxValue = Math.max(
+        ...data.map(d =>
+            Math.max(d.connections, d.successful_logins)
+        ),
+        1
+    );
+
+    const roundedMax =
+        Math.ceil(maxValue / 25) * 25 || 25;
+
+    const x = index => {
+        if (data.length === 1) {
+            return margin.left + plotWidth / 2;
+        }
+
+        return margin.left +
+            (index / (data.length - 1)) * plotWidth;
+    };
+
+    const y = value =>
+        margin.top +
+        plotHeight -
+        (value / roundedMax) * plotHeight;
+
+    for (let i = 0; i <= 4; i++) {
+        const value = (roundedMax / 4) * i;
+        const ypos = y(value);
+
+        const grid = svgElement("line", {
+            x1: margin.left,
+            y1: ypos,
+            x2: width - margin.right,
+            y2: ypos,
+            stroke: "#30363d",
+            "stroke-width": "1"
+        });
+
+        svg.appendChild(grid);
+
+        const label = svgElement("text", {
+            x: margin.left - 10,
+            y: ypos + 4,
+            fill: "#8b949e",
+            "font-size": "11",
+            "text-anchor": "end"
+        });
+
+        label.textContent = Math.round(value);
+        svg.appendChild(label);
+    }
+
+    const connectionPoints = data.map((d, i) =>
+        `${x(i)},${y(d.connections)}`
+    ).join(" ");
+
+    const loginPoints = data.map((d, i) =>
+        `${x(i)},${y(d.successful_logins)}`
+    ).join(" ");
+
+    const areaPoints =
+        `${x(0)},${y(0)} ` +
+        connectionPoints +
+        ` ${x(data.length - 1)},${y(0)}`;
+
+    const area = svgElement("polygon", {
+        points: areaPoints,
+        fill: "#58a6ff",
+        opacity: "0.08"
+    });
+
+    svg.appendChild(area);
+
+    const connectionLine = svgElement("polyline", {
+        points: connectionPoints,
+        fill: "none",
+        stroke: "#58a6ff",
+        "stroke-width": "3",
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round"
+    });
+
+    svg.appendChild(connectionLine);
+
+    const loginLine = svgElement("polyline", {
+        points: loginPoints,
+        fill: "none",
+        stroke: "#3fb950",
+        "stroke-width": "3",
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round"
+    });
+
+    svg.appendChild(loginLine);
+
+    data.forEach((item, index) => {
+        const cx = x(index);
+
+        const connectionCircle = svgElement("circle", {
+            cx: cx,
+            cy: y(item.connections),
+            r: "4",
+            fill: "#58a6ff"
+        });
+
+        const loginCircle = svgElement("circle", {
+            cx: cx,
+            cy: y(item.successful_logins),
+            r: "4",
+            fill: "#3fb950"
+        });
+
+        svg.appendChild(connectionCircle);
+        svg.appendChild(loginCircle);
+
+        const dateParts = item.date.split("-");
+
+        const dateLabel = svgElement("text", {
+            x: cx,
+            y: height - 13,
+            fill: "#8b949e",
+            "font-size": "11",
+            "text-anchor": "middle"
+        });
+
+        dateLabel.textContent =
+            `${dateParts[1]}/${dateParts[2]}`;
+
+        svg.appendChild(dateLabel);
+
+        const hover = svgElement("rect", {
+            x: cx - Math.max(plotWidth / data.length / 2, 10),
+            y: margin.top,
+            width: Math.max(plotWidth / data.length, 20),
+            height: plotHeight,
+            fill: "transparent"
+        });
+
+        hover.addEventListener("mouseenter", event => {
+            tooltip.innerHTML =
+                `<strong>${escapeHTML(item.date)}</strong><br>` +
+                `Connections: ${item.connections}<br>` +
+                `Successful logins: ${item.successful_logins}`;
+
+            tooltip.style.display = "block";
+        });
+
+        hover.addEventListener("mousemove", event => {
+            const wrapper =
+                document.querySelector(".chart-wrapper");
+
+            const bounds = wrapper.getBoundingClientRect();
+
+            tooltip.style.left =
+                `${event.clientX - bounds.left + 12}px`;
+
+            tooltip.style.top =
+                `${event.clientY - bounds.top - 15}px`;
+        });
+
+        hover.addEventListener("mouseleave", () => {
+            tooltip.style.display = "none";
+        });
+
+        svg.appendChild(hover);
+    });
+}
+
+async function loadDashboard() {
+    try {
+        const response =
+            await fetch("/data.json?t=" + Date.now());
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        document.getElementById("connections").textContent =
+            data.connections.toLocaleString();
+
+        document.getElementById("uniqueIPs").textContent =
+            data.unique_ips.toLocaleString();
+
+        document.getElementById("success").textContent =
+            data.successful_logins.toLocaleString();
+
+        document.getElementById("failed").textContent =
+            data.failed_logins.toLocaleString();
+
+        document.getElementById("commands").textContent =
+            data.commands_captured.toLocaleString();
+
+        document.getElementById("files").textContent =
+            data.file_events.toLocaleString();
+
+        renderActivityChart(data.activity_by_day);
+
+        document.getElementById("recentConnections").innerHTML =
+            data.recent_connections.map(item => `
+                <tr>
+                    <td>${localTime(item.time)}</td>
+                    <td class="ip">${escapeHTML(item.ip)}</td>
+                </tr>
+            `).join("");
+
+        document.getElementById("topIPs").innerHTML =
+            data.top_ips.map(item => `
+                <tr>
+                    <td class="ip">${escapeHTML(item[0])}</td>
+                    <td>${item[1]}</td>
+                </tr>
+            `).join("");
+
+        document.getElementById("topUsers").innerHTML =
+            data.top_usernames.map(item => `
+                <tr>
+                    <td>${escapeHTML(item[0])}</td>
+                    <td>${item[1]}</td>
+                </tr>
+            `).join("");
+
+        document.getElementById("topHassh").innerHTML =
+            data.top_hassh.map(item => `
+                <tr>
+                    <td class="code">${escapeHTML(item[0])}</td>
+                    <td>${item[1]}</td>
+                </tr>
+            `).join("");
+
+        document.getElementById("recentCommands").innerHTML =
+            data.recent_commands.map(item => `
+                <tr>
+                    <td>${localTime(item.time)}</td>
+                    <td class="ip">${escapeHTML(item.ip)}</td>
+                    <td class="code">${escapeHTML(item.command)}</td>
+                </tr>
+            `).join("");
+
+        document.getElementById("topCommands").innerHTML =
+            data.top_commands.map(item => `
+                <tr>
+                    <td class="code">${escapeHTML(item[0])}</td>
+                    <td>${item[1]}</td>
+                </tr>
+            `).join("");
+
+        document.getElementById("updated").textContent =
+            "Dashboard data generated: " +
+            localTime(data.generated_at) +
+            " • Browser refreshes every 30 seconds";
+
+    } catch (error) {
+        document.getElementById("updated").textContent =
+            "Unable to retrieve dashboard data.";
+
+        console.error(error);
+    }
+}
+
+loadDashboard();
+
+setInterval(loadDashboard, 30000);
+
+window.addEventListener("resize", () => {
+    loadDashboard();
+});
+</script>
+
+</body>
+</html>

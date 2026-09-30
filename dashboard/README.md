@@ -48,6 +48,3 @@ The following are not exposed through the web server:
 
 Dashboard data is regenerated automatically using a systemd timer. The browser requests updated data every 30 seconds.
 
-## Screenshots
-
-Screenshots of the dashboard will be added here.

@@ -1,4 +1,3 @@
-cat > /tmp/ssh-credential-validation.md <<'EOF'
 # SSH Credential Validation Activity
 
 A recurring SSH pattern was observed in the honeypot involving successful root authentications followed by little or no post-login activity.
@@ -49,4 +48,4 @@ The behavior is consistent with automated SSH credential validation or access ch
 Rather than repeatedly testing common passwords, the client successfully authenticated using different random-looking passwords and usually disconnected without attempting to interact with the system.
 
 The honeypot logs do not reveal where these credentials originated, whether they were obtained from compromised systems, or the identity of the operator. The HASSH fingerprint alone is also not sufficient to attribute the activity to a specific tool or threat actor.
-EOF
+

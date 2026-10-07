@@ -224,6 +224,136 @@ footer {
     font-size: 12px;
 }
 
+
+/* Site navigation */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #238636;
+    border-radius: 9px;
+    background: rgba(46,160,67,.08);
+    color: #3fb950;
+    font-family: Consolas, monospace;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: 0 0 18px rgba(63,185,80,.08);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.site-nav {
+    display: flex;
+    gap: 7px;
+}
+
+.site-nav a {
+    color: #8b949e;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 11px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.site-nav a:hover {
+    color: #e6edf3;
+    background: #21262d;
+    border-color: #30363d;
+}
+
+.site-nav a.active {
+    color: #58a6ff;
+    background: rgba(88,166,255,.08);
+    border-color: rgba(88,166,255,.25);
+}
+
+/* Research callout */
+.research-banner {
+    margin-bottom: 18px;
+    padding: 18px 20px;
+    background:
+        linear-gradient(100deg, rgba(88,166,255,.10), transparent 55%),
+        #161b22;
+    border: 1px solid #30363d;
+    border-radius: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+}
+
+.research-eyebrow {
+    color: #58a6ff;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.research-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.research-description {
+    color: #8b949e;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.research-link {
+    flex-shrink: 0;
+    color: #e6edf3;
+    text-decoration: none;
+    background: #21262d;
+    border: 1px solid #58a6ff;
+    border-radius: 7px;
+    padding: 10px 15px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.research-link:hover {
+    background: rgba(88,166,255,.12);
+}
+
+@media(max-width: 850px) {
+    .header-row,
+    .header-right {
+        align-items: flex-start;
+    }
+
+    .header-row {
+        flex-direction: column;
+    }
+
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .research-banner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
 @media(max-width: 1100px) {
     .stats {
         grid-template-columns: repeat(3, 1fr);
@@ -258,21 +388,52 @@ footer {
 
 <header>
 <div class="header-row">
-    <div>
-        <h1>Cowrie Honeypot Dashboard</h1>
-        <div class="subtitle">
-            AWS-hosted SSH honeypot monitoring and attack telemetry
+
+    <div class="brand">
+        <div class="brand-icon">&gt;_</div>
+
+        <div>
+            <h1>AWS Cowrie Honeypot</h1>
+            <div class="subtitle">
+                Internet-facing SSH threat telemetry and analysis
+            </div>
         </div>
     </div>
 
-    <div class="live">
-        <span class="dot"></span>
-        LIVE
+    <div class="header-right">
+        <nav class="site-nav">
+            <a class="active" href="/">Dashboard</a>
+            <a href="/analysis/">Threat Analysis</a>
+            <a href="https://github.com/evanyoungxc/aws-cowrie-honeypot">GitHub</a>
+        </nav>
+
+        <div class="live">
+            <span class="dot"></span>
+            LIVE
+        </div>
     </div>
+
 </div>
 </header>
 
+
 <main>
+
+<div class="research-banner">
+    <div>
+        <div class="research-eyebrow">Threat Research</div>
+        <div class="research-title">9 documented attack investigations</div>
+        <div class="research-description">
+            Explore malware captures, SSH abuse, credential activity,
+            reconnaissance, and recurring campaigns observed by this honeypot.
+        </div>
+    </div>
+
+    <a class="research-link" href="/analysis/">
+        View Investigations &rarr;
+    </a>
+</div>
+
 
 <div class="stats">
 

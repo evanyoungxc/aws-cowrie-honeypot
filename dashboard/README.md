@@ -2,7 +2,7 @@
 
 A live web dashboard for monitoring sanitized telemetry collected by the AWS Cowrie SSH honeypot.
 
-**Live Dashboard:** http://54.210.18.142/
+**Live Dashboard:** https://honeypot.eyoungcyber.com
 
 ![Cowrie Honeypot Dashboard](../images/dashboard.png)
 

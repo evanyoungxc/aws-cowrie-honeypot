@@ -10,7 +10,7 @@ I also built a public dashboard to visualize sanitized honeypot telemetry and pr
 
 ## Live Dashboard
 
-**Dashboard:** http://54.210.18.142/
+**Dashboard:** https://honeypot.eyoungcyber.com
 
 The dashboard provides a live view of activity captured by the honeypot, including:
 
